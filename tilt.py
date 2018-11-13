@@ -11,11 +11,19 @@ class Tilt:
         self.temp = temp
         self.gravity = gravity
 
+    def get_temp(self, celcius):
+        t=(celcius and ((float(self.temp) - 32) * 5/9) or self.temp)
+        return t
+
+    def get_gravity(self):
+        g=float(self.gravity)/1000
+        return g
+
     def __str__ (self, celcius=True):
         return "UUID: {u} Colour: {c} Temp: {t} Gravity {g}".format(u=self.uuid,
                                                                     c=self.colour,
-                                                                    t=(celcius and ((float(self.temp) - 32) * 5/9) or self.temp),
-                                                                    g=float(self.gravity)/1000)
+                                                                    t=self.get_temp(celcius),
+                                                                    g=self.get_gravity())
 
 def get_tilt(colour):
     dev_id = 0
@@ -63,11 +71,19 @@ def main(args):
     if isinstance(tilt, list):
         print "Found these though: {o}".format(",".join(tilt.keys()))
     if isinstance(tilt, Tilt):
-        print(str(tilt))
+        if args.temp:
+            print(tilt.get_temp(not args.fahrenheit))
+        elif args.gravity:
+            print(tilt.get_gravity())
+        else:
+            print(str(tilt))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Get output from a Tilt Hydrometer")
     parser.add_argument("colour", help="Colour of the tilt you want to check", type=str)
+    parser.add_argument("--temp", help="Output temperature only", action="store_true")
+    parser.add_argument("--gravity", help="Output gravity only", action="store_true")
+    parser.add_argument("--fahrenheit", help="Output as fahrenheit rather than celcius", action='store_true')
     args=parser.parse_args()
 
     main(args)
