@@ -25,7 +25,7 @@ class Tilt:
                                                                     t=self.get_temp(celcius),
                                                                     g=self.get_gravity())
 
-def get_tilt(colour):
+def get_tilt(colour, tries=3):
     dev_id = 0
     try:
         sock = bluez.hci_open_dev(dev_id)
@@ -33,7 +33,11 @@ def get_tilt(colour):
 
     except:
         print "error accessing bluetooth device..."
-        return False
+        if tries > 1:
+            time.sleep(1)
+            return get_tilt(colour, tries-1)
+        else:
+            return False
 
     blescan.hci_le_set_scan_parameters(sock)
     blescan.hci_enable_le_scan(sock)
